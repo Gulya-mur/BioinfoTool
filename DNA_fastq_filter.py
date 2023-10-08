@@ -1,5 +1,5 @@
 
-from typing import Dict, Tuple
+from typing import Tuple
 
 def cal_gc_content(dna: str) -> int: 
     """Return percent of GC content"""   
@@ -35,7 +35,7 @@ def quality_threshold(quality: str, value: int):
     """
     for qual in quality:
         nuc_qual = ord(qual)-33
-        if nuc_qual < 0:
+        if nuc_qual < value:
             break
     return True
 
