@@ -4,8 +4,8 @@ from ProteinTool import *
 from DNA_fastq_filter import *
 
 def run_dna_rna_tools(operation: str, seqs: List[str]):
-    if len(seqs) >= 2 and operation == "process_multiple_sequences":
-        return process_multiple_sequences(seqs)
+    if len(seqs) >= 2:
+        return process_multiple_sequences(seqs, operation)
     else:
         if operation == "transcribe":
             return transcribe(seqs)
