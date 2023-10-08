@@ -1,6 +1,6 @@
 from bio_info import GRAVY_AA_VALUES, AMINO_ACIDS_NAMES
 from typing import List
-from main_functions import process_seqs
+
 
 VALID_SYMBOLS = set(AMINO_ACIDS_NAMES)
 
