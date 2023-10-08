@@ -1,5 +1,5 @@
 from DNATool import *
-from typing import List
+from typing import Dict, List
 from ProteinTool import *
 from DNA_fastq_filter import *
 
