@@ -41,6 +41,14 @@ run_dna_rna_tools( 'reverse', 'ATG', 'aT') # ['GTA', 'Ta']
 
 # ProteinTool
 
+HomeWork: correct mistakes 
+My functions:
+* calc_protein_mass
+* find_heaviest_proteins
+* max_mass
+* find_lightest_proteins
+* min_mass
+
 ## Tool for PROtein SEQuences Operation
 
 This tool can perform some simple operations on amino acid sequences:
