@@ -1,5 +1,5 @@
 from DNATool import *
-from typing import Dict, List
+from typing import Dict, List, Tuple, Union
 from ProteinTool import *
 from DNA_fastq_filter import *
 
@@ -44,7 +44,7 @@ def process_seqs(option: str, seqs: List[str]):
     else:
         raise ValueError("Enter valid operation")
     
-def read_fastq(seqs: Dict[str, tuple] , gc: Tuple[int], length: Tuple[int], quality: int) -> Dict: 
+def read_fastq(seqs: Dict[str, tuple] , gc: Tuple[Union[int, float]], length: Tuple[int], quality: int) -> Dict: 
     """
     The main function takes 4 arguments. It checks DNA for compliance with conditions and return new Dict with filtered DNA. 
     """
