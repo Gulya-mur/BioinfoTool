@@ -1,4 +1,4 @@
-#main_functions
+# main_functions
 
 This file contains 3 main functions used for analyze biological data.
 
@@ -16,7 +16,7 @@ BioinfoTool contains 3 modules:
 
 The DNATool contains 6 functions, which we can use to analyze out DNA data. 
 
-##Functions:
+## Functions:
 
 transcribe — return the transcribed sequence
 reverse — return the reversed sequence
@@ -82,7 +82,7 @@ Command must be a string with one of followed options.
 
 DNA_fastq_filter contains 4 functions that are used to assess the quality of data and filter according to specified criteria.
 
-##Functions:
+## Functions:
 
 cal_gc_content — return percent of GC content
 gc_bounds — define filter boundatry and return dna if it passed the filtering using cal_gc_content
