@@ -41,8 +41,9 @@ run_dna_rna_tools( 'reverse', 'ATG', 'aT') # ['GTA', 'Ta']
 
 # ProteinTool
 
-HomeWork: correct mistakes 
-My functions:
+##HomeWork: correct mistakes
+
+#My functions:
 * calc_protein_mass
 * find_heaviest_proteins
 * max_mass
