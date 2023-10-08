@@ -1,5 +1,5 @@
 from bio_info import NUCLEOTIDES, NUCL_COMPLEMENT_MAP
-from main_functions import run_dna_rna_tools
+
       
 def is_dna(seq):    
     for nuc in seq:
@@ -21,10 +21,13 @@ def complement(seq: str):
 def reverse_complement(seq: str):
     return complement(reverse(seq)) 
     
-def process_multiple_sequences(seqs, operation):       
+def process_multiple_sequences(seqs, operation):
+    func = {"transcribe": transcribe,
+            "reverse": reverse,
+            "complement": complement,
+            "reverse_complement": reverse_complement}      
     list_seq = []
     for seq in seqs:
-        list_seq.append(run_dna_rna_tools(operation, [seq]))
+        list_seq.append(func[operation](seq))
     return list_seq
 
-    
