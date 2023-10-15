@@ -1,7 +1,7 @@
-from DNATool import *
+import DNATool
 from typing import Dict, List, Tuple, Union
-from ProteinTool import *
-from DNA_fastq_filter import *
+import ProteinTool
+import DNA_fastq_filter
 
 def run_dna_rna_tools(operation: str, seqs: List[str]):
     if len(seqs) >= 2:
