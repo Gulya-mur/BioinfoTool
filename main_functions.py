@@ -1,7 +1,7 @@
-import DNATool
+from DNATool import transcribe, reverse, complement, reverse_complement, process_multiple_sequences
 from typing import Dict, List, Tuple, Union
-import ProteinTool
-import DNA_fastq_filter
+from ProteinTool import calc_gravy, calc_iso_point, transform_to_three_letters, sequence_length, calc_protein_mass, find_heaviest_proteins, find_lightest_proteins, check_sequences
+from DNA_fastq_filter import length_bounds, gc_bounds, quality_threshold
 
 def run_dna_rna_tools(operation: str, seqs: List[str]):
     if len(seqs) >= 2:
@@ -44,12 +44,14 @@ def process_seqs(option: str, seqs: List[str]):
     else:
         raise ValueError("Enter valid operation")
     
-def read_fastq(seqs: Dict[str, tuple] , gc: Tuple[Union[int, float]], length: Tuple[int], quality: int) -> Dict: 
+def read_fastq(seqs: Dict[str, tuple] , gc_bounds: Tuple[Union[int, float]], length_bounds: Tuple[int], quality_threshold: int) -> Dict:
+
     """
     The main function takes 4 arguments. It checks DNA for compliance with conditions and return new Dict with filtered DNA. 
     """
-    qualitive_dna = {}
-    for name, turp in seqs.items():       
-        if length_bounds(turp[0],length) and gc_bounds(turp[0], gc) and quality_threshold(turp[1],quality):
-                   qualitive_dna[name] = turp
-    return qualitive_dna
+    filtered_reads = {}
+    for seq_name, values in seqs.items():
+        seq, seq_quality = values 
+        if (is_pass_by_length(seq[0], length_bounds) and is_pass_by_gc(seq[0], gc_bounds) and is_pass_by_quality(seq_quality[1], quality_threshold)):                   
+                   filtered_reads[seq_name] = values
+    return filtered_reads

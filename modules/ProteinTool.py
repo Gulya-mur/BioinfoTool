@@ -1,5 +1,5 @@
 from bio_info import GRAVY_AA_VALUES, AMINO_ACIDS_NAMES
-from typing import List
+from typing import List, Dict
 
 
 VALID_SYMBOLS = set(AMINO_ACIDS_NAMES)
@@ -99,14 +99,14 @@ def find_heaviest_proteins(proteins: List[str]) -> List[str]:
     return max_mass(protein_mass)
 
 
-def max_mass(protein_mass):
+def max_mass(protein_mass: Dict) -> List[str]:
     """
     Count amount of proteins with the same maximum mass and return them
     """
     max_weight = max(protein_mass.values())
     proteins = []
     for protein, weight in protein_mass.items():
-        if weight == max_weight:
+        if weight == max_weight:            
                 proteins.append(protein)
     return proteins
 
@@ -121,7 +121,7 @@ def find_lightest_proteins(proteins: List[str]) -> List[str]:
     return min_mass(protein_mass)
 
 
-def min_mass(protein_mass):
+def min_mass(protein_mass: Dict) -> List[str]:
     """
     Count amount of proteins with the same minimum mass and return it
     """
@@ -133,19 +133,19 @@ def min_mass(protein_mass):
     return proteins
 
 
-def check_sequences(seqs: list):
+def check_sequences(seqs: List[str]):
     """
     Raise ValueError if at least one sequence
     contains non valid symbols
     """
-    if not (isinstance(seqs, list)):
+    if not isinstance(seqs, list):
         raise ValueError("Enter valid protein sequence")
     for seq in seqs:
-        if (not (isinstance(seq, str))) or (not (set(seq.upper()).issubset(VALID_SYMBOLS))):
+        if not isinstance(seq, str) or not set(seq.upper()).issubset(VALID_SYMBOLS):
             raise ValueError("Enter valid protein sequence")
 
 
-# Didn't place at the beginning because the functions are defined above
+
 
 
 
