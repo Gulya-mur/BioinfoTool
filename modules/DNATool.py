@@ -1,6 +1,15 @@
-from bio_info import NUCLEOTIDES, NUCL_COMPLEMENT_MAP
+#from bio_info import NUCLEOTIDES, NUCL_COMPLEMENT_MAP
 from typing import List
+NUCL_COMPLEMENT_MAP = {"A":"T",
+            "a": "t",
+            "T":"A",
+            "t": "a",
+            "C":"G",
+            "c": "g",
+            "G":"C",
+            "g": "c"}
 
+NUCLEOTIDES = ["A", "T", "C", "G", "a", "t", "c", "g"]
       
 def is_dna(seq: str) -> str:    
     for nuc in seq:
