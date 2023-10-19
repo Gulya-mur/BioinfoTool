@@ -1,5 +1,5 @@
-from typing import Dict, List, Tuple, Union
-import os.path
+from typing import Dict, List, Tuple, Union, TextIO
+import os
 from modules.ProteinTool import calc_gravy, calc_iso_point, transform_to_three_letters, sequence_length, calc_protein_mass, find_heaviest_proteins, find_lightest_proteins, check_sequences
 from modules.DNA_fastq_filter import is_pass_by_gc, is_pass_by_length, is_pass_by_quality
 from modules.DNATool import transcribe, reverse, complement, reverse_complement, process_multiple_sequences
@@ -59,43 +59,54 @@ def read_fastq(fastq_file: str) -> Dict:
     fastq.closed
     return fastq_dict
 
+# def final_result(filtered_reads: Dict, output_filename: Union[str, None]):                                   
+#             path = os.makedirs('/Users/gulyamuradova/Desktop/BioinfoTool/fastq_filtrator_resuls', exist_ok=True)
+#             with open (os.path.join(path, output_filename), 'w') as outfile:
+#                 for name, values in filtered_reads.items():                       
+#                         seq, comment, quality = values
+#                         outfile.write(name)
+#                         outfile.write(seq)
+#                         outfile.write('\n')
+#                         outfile.write(comment)
+#                         outfile.write(quality)
+#                         outfile.write('\n')
 
-def filter_fastq(input_path: str , gc_bounds: Tuple[Union[int, float]], length_bounds: Tuple[int], quality_threshold: int, output_filename: Union[str, None]) -> Dict:
+def save_file_at_dir(file_content: Dict, prev_name: str, output_filename: Union[str, None], mode='w') -> TextIO:
+    """Function makes a folder and saves generated files to the folder"""
+    if output_filename == None:
+         output_filename = prev_name
+         
+    filename = './fastq_filtrator_resuls/' + output_filename + '.fastq'
+    os.makedirs( os.path.dirname(filename) , exist_ok=True)
+    with open(filename, mode) as outfile:
+        for name, values in file_content.items():                       
+                        seq, comment, quality = values
+                        outfile.write(name)
+                        outfile.write(seq)
+                        outfile.write('\n')
+                        outfile.write(comment)
+                        outfile.write(quality)
+                        outfile.write('\n')
+
+
+def filter_fastq(input_path: str, gc_bounds: Tuple[Union[int, float]], length_bounds: Tuple[int], quality_threshold: int, output_filename: Union[str, None]) -> Dict:
 
     """
-    The main function takes 4 arguments. It checks DNA for compliance with conditions and return new Dict with filtered DNA. 
-    """
-    def final_result(filtered_reads: Dict, output_filename: Union[str, None]):
-        save_path = 'fastq_filtrator_resuls/'
-        if output_filename is None:
-            output_filename = input_path 
-        with open (output_filename, 'w') as outfile:
-            for name, values in filtered_reads.items():
-                    seq, comment, quality = values
-                    outfile.write(name)
-                    outfile.write(seq)
-                    outfile.write('\n')
-                    outfile.write(comment)
-                    outfile.write(quality)
-                    outfile.write('\n')
-#        os.path.join(save_path, output_filename)        
-                
+    The main function takes 5 arguments. It checks DNA for compliance with conditions and return new Dict with filtered DNA. 
+    """       
+                    
     fastq_dict = read_fastq(input_path)
     filtered_reads = {}
     for seq_name, values in fastq_dict.items():
         seq, _, seq_quality = values 
         if (is_pass_by_length(seq, length_bounds) and is_pass_by_gc(seq, gc_bounds) and is_pass_by_quality(seq_quality, quality_threshold)):                   
-                   filtered_reads[seq_name] = values
-    print(filtered_reads)
-#    return final_result(filtered_reads, output_filename)
+                   filtered_reads[seq_name] = values              
+    return save_file_at_dir(filtered_reads, input_path, output_filename)
 
-filter_fastq('example_fastq.fastq', (20, 80), (0, 2**32), 0, 'output_filename.fastq')
-
-
-
-
-
+filter_fastq('example_fastq.fastq', (20, 80), (0, 2**32), 0, 'name')
             
 
          
+
+
      
