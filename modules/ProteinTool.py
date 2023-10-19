@@ -1,9 +1,49 @@
-from bio_info import GRAVY_AA_VALUES, AMINO_ACIDS_NAMES
+#from bio_info import GRAVY_AA_VALUES, AMINO_ACIDS_NAMES
 from typing import List, Dict
 
+AMINO_ACIDS_NAMES = {'A': 'Ala',
+                     'R': 'Arg',
+                     'N': 'Asn',
+                     'D': 'Asp',
+                     'V': 'Val',
+                     'H': 'His',
+                     'G': 'Gly',
+                     'Q': 'Gln',
+                     'E': 'Glu',
+                     'I': 'Ile',
+                     'L': 'Leu',
+                     'K': 'Lys',
+                     'M': 'Met',
+                     'P': 'Pro',
+                     'S': 'Ser',
+                     'Y': 'Tyr',
+                     'T': 'Thr',
+                     'W': 'Trp',
+                     'F': 'Phe',
+                     'C': 'Cys'}
+
+GRAVY_AA_VALUES = {'L': 3.8,
+                   'K': -3.9,
+                   'M': 1.9,
+                   'F': 2.8,
+                   'P': -1.6,
+                   'S': -0.8,
+                   'T': -0.7,
+                   'W': -0.9,
+                   'Y': -1.3,
+                   'V': 4.2,
+                   'A': 1.8,
+                   'R': -4.5,
+                   'N': -3.5,
+                   'D': -3.5,
+                   'C': 2.5,
+                   'Q': -3.5,
+                   'E': -3.5,
+                   'G': -0.4,
+                   'H': -3.2,
+                   'I': 4.5}
 
 VALID_SYMBOLS = set(AMINO_ACIDS_NAMES)
-
 
 def calc_gravy(seq: str) -> float:
     """
@@ -14,7 +54,6 @@ def calc_gravy(seq: str) -> float:
     for amino_ac in seq:
         gravy_aa_sum += GRAVY_AA_VALUES[amino_ac]
     return round(gravy_aa_sum / len(seq), 3)
-
 
 def calc_total_charge(charged_amino_ac_numbers_list: list,
                       ph_value: float) -> float:
