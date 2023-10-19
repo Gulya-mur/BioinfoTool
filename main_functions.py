@@ -1,7 +1,8 @@
-from DNATool import transcribe, reverse, complement, reverse_complement, process_multiple_sequences
 from typing import Dict, List, Tuple, Union
-from ProteinTool import calc_gravy, calc_iso_point, transform_to_three_letters, sequence_length, calc_protein_mass, find_heaviest_proteins, find_lightest_proteins, check_sequences
-from DNA_fastq_filter import length_bounds, gc_bounds, quality_threshold
+import os.path
+from modules.ProteinTool import calc_gravy, calc_iso_point, transform_to_three_letters, sequence_length, calc_protein_mass, find_heaviest_proteins, find_lightest_proteins, check_sequences
+from modules.DNA_fastq_filter import is_pass_by_gc, is_pass_by_length, is_pass_by_quality
+from modules.DNATool import transcribe, reverse, complement, reverse_complement, process_multiple_sequences
 
 def run_dna_rna_tools(operation: str, seqs: List[str]):
     if len(seqs) >= 2:
@@ -44,14 +45,57 @@ def process_seqs(option: str, seqs: List[str]):
     else:
         raise ValueError("Enter valid operation")
     
-def read_fastq(seqs: Dict[str, tuple] , gc_bounds: Tuple[Union[int, float]], length_bounds: Tuple[int], quality_threshold: int) -> Dict:
+def read_fastq(fastq_file: str) -> Dict:
+    with open(fastq_file, 'r') as fastq:
+        fastq_dict = {}
+        while True:
+            name = fastq.readline()
+            seq = fastq.readline().rstrip()
+            comment = fastq.readline()
+            qual = fastq.readline().rstrip()
+            if len(seq) == 0:
+                break
+            fastq_dict[name] = (seq,comment, qual)
+    fastq.closed
+    return fastq_dict
+
+
+def filter_fastq(input_path: str , gc_bounds: Tuple[Union[int, float]], length_bounds: Tuple[int], quality_threshold: int, output_filename: Union[str, None]) -> Dict:
 
     """
     The main function takes 4 arguments. It checks DNA for compliance with conditions and return new Dict with filtered DNA. 
     """
+    def final_result(filtered_reads: Dict, output_filename: Union[str, None]):
+        save_path = 'fastq_filtrator_resuls/'
+        if output_filename is None:
+            output_filename = input_path 
+        with open (output_filename, 'w') as outfile:
+            for name, values in filtered_reads.items():
+                    seq, comment, quality = values
+                    outfile.write(name)
+                    outfile.write(seq)
+                    outfile.write('\n')
+                    outfile.write(comment)
+                    outfile.write(quality)
+                    outfile.write('\n')
+#        os.path.join(save_path, output_filename)        
+                
+    fastq_dict = read_fastq(input_path)
     filtered_reads = {}
-    for seq_name, values in seqs.items():
-        seq, seq_quality = values 
-        if (is_pass_by_length(seq[0], length_bounds) and is_pass_by_gc(seq[0], gc_bounds) and is_pass_by_quality(seq_quality[1], quality_threshold)):                   
+    for seq_name, values in fastq_dict.items():
+        seq, _, seq_quality = values 
+        if (is_pass_by_length(seq, length_bounds) and is_pass_by_gc(seq, gc_bounds) and is_pass_by_quality(seq_quality, quality_threshold)):                   
                    filtered_reads[seq_name] = values
-    return filtered_reads
+    print(filtered_reads)
+#    return final_result(filtered_reads, output_filename)
+
+filter_fastq('example_fastq.fastq', (20, 80), (0, 2**32), 0, 'output_filename.fastq')
+
+
+
+
+
+            
+
+         
+     
