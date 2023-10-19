@@ -1,4 +1,4 @@
-# main_functions
+# main
 
 This file contains 3 main functions used for analyze biological data.
 
@@ -30,7 +30,7 @@ Execute script (you should be on directory with script):
 ```bash
 python3
 >>> from main_functions import run_dna_rna_tools
->>>print(run_dna_rna_tools(__command__, __sequence or list of sequences__))
+>>> print(run_dna_rna_tools(__command__, __sequence or list of sequences__))
 ```
 
 run_dna_rna_tools('transcribe', 'ATG') # 'AUG'
@@ -62,7 +62,7 @@ Execute script (you should be on directory with script):
 ```bash
 python3
 >>> from ProtSeqO import process_seqs
->>>print(process_seqs(__command__, __sequence or list of sequences__))
+>>> print(process_seqs(__command__, __sequence or list of sequences__))
 ```
 
 You can input to `process_seqs()` sequence as string or list with any strings of sequences. __Pay attention__ that your sequence(s) should contain 1-letter symbols (case does not matters) of 20 common amino acids ('U' for selenocysteine and 'O' for pyrrolysine doesn't allowed).
@@ -96,8 +96,11 @@ Execute script (you should be on directory with script):
 ```bash
 python3
 >>> from main_functions import read_fastq
->>>print(read_fastq(__dic__, __gc_bounds__, __length_bounds, __quality__))
+>>> print(read_fastq(__dic__, __gc_bounds__, __length_bounds, __quality__))
 ```
 
-read_fastq(dict_name, (20, 80), (0, 2**32), 0) 
-read_fastq(dict_name, (75), (1000), 0) 
+```bash
+python3
+>>> read_fastq(dict_name, (20, 80), (0, 2**32), 0) 
+>>> read_fastq(dict_name, (75), (1000), 0) 
+```
