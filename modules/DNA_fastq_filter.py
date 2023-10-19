@@ -29,7 +29,7 @@ def is_pass_by_quality(quality: str, value: int) -> bool:
     """
     for qual in quality:
         nuc_qual = ord(qual)-33
-        if nuc_qual < value:
-            break
+        return nuc_qual > value
+
     
 
