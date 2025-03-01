@@ -1,16 +1,31 @@
-# main_functions
+# BioinfoTool
+
+*Немного слов. Знаю, что имеются ошибки/недочеты в предыдущих функциях, которые делали в команде (свои правила). Я их вижу, просто еще не хватило времени засесть за них и разобраться. Я их исправлю, не ругайте :)*
+
+It contains 1 main function and 3 associated modules. Also it has additional function *bio_files_processor*
+
+## main
+
+* main.py
+* bio_files_processor
+
+## modules: 
+
+* DNATool.py
+* DNA_fastq_filter.py
+* ProteinTool.py
+
+# main
 
 This file contains 3 main functions used for analyze biological data.
 
 * run_dna_rna_tools - use for analysis DNA data. Details are described below 
 * process_seqs - use for analysis Protein data. Details are described below 
-* read_fastq - use for analysis DNA data from fastq file. Details are described below 
+* filter_fastq - use for analysis DNA data from fastq file. Details are described below 
 
-BioinfoTool contains 3 modules:
+# bio_files_processor
 
-* DNATool.py
-* DNA_fastq_filter.py
-* ProteinTool.py
+* convert_multiline_fasta_to_oneline - takes fasta file with DNA/RNA/protein sequences and converts it to one line deleting all unnecessary information
 
 # DNATool
 
@@ -29,8 +44,8 @@ is_dna - used as an internal function to determine the type of sequence (DNA or 
 Execute script (you should be on directory with script):
 ```bash
 python3
->>> from main_functions import run_dna_rna_tools
->>>print(run_dna_rna_tools(__command__, __sequence or list of sequences__))
+>>> from main import run_dna_rna_tools
+>>> print(run_dna_rna_tools(__command__, __sequence or list of sequences__))
 ```
 
 run_dna_rna_tools('transcribe', 'ATG') # 'AUG'
@@ -62,7 +77,7 @@ Execute script (you should be on directory with script):
 ```bash
 python3
 >>> from ProtSeqO import process_seqs
->>>print(process_seqs(__command__, __sequence or list of sequences__))
+>>> print(process_seqs(__command__, __sequence or list of sequences__))
 ```
 
 You can input to `process_seqs()` sequence as string or list with any strings of sequences. __Pay attention__ that your sequence(s) should contain 1-letter symbols (case does not matters) of 20 common amino acids ('U' for selenocysteine and 'O' for pyrrolysine doesn't allowed).
@@ -85,19 +100,21 @@ DNA_fastq_filter contains 4 functions that are used to assess the quality of dat
 ## Functions:
 
 cal_gc_content — return percent of GC content
-gc_bounds — define filter boundatry and return dna if it passed the filtering using cal_gc_content
-length_bounds — efine filter boundatry and return dna if it passed the filtering by set range
-quality_threshold — Define quality of each nucleotide using ASCII table and Phred-33 scale
-
+gc_bounds — define filter boundatry and return bool if it passed the filtering using cal_gc_content
+length_bounds — define filter boundatry and return bool if it passed the filtering by set range
+quality_threshold — Define quality of each nucleotide using ASCII table and Phred-33 scale and return bool
 
 ## DNATool using examples
 
 Execute script (you should be on directory with script):
 ```bash
 python3
->>> from main_functions import read_fastq
->>>print(read_fastq(__dic__, __gc_bounds__, __length_bounds, __quality__))
+>>> from main import filter_fastq
+>>> print(read_fastq(__dic__, __gc_bounds__, __length_bounds, __quality__))
 ```
 
-read_fastq(dict_name, (20, 80), (0, 2**32), 0) 
-read_fastq(dict_name, (75), (1000), 0) 
+```bash
+python3
+>>> filter_fastq('example_fastq.fastq', (20, 80), (0, 2**32), 0, 'name.fastq') 
+>>> filter_fastq('example_fastq.fastq', (75), (1000), 0, 'name.fastq') 
+```
