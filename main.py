@@ -1,99 +1,212 @@
-from typing import Dict, List, Tuple, Union, TextIO
+from typing import Dict, List, Tuple, Union, TextIO, Optional
 import os
-from modules.ProteinTool import calc_gravy, calc_iso_point, transform_to_three_letters, sequence_length, calc_protein_mass, find_heaviest_proteins, find_lightest_proteins, check_sequences
-from modules.DNA_fastq_filter import is_pass_by_gc, is_pass_by_length, is_pass_by_quality
-from modules.DNATool import transcribe, reverse, complement, reverse_complement, process_multiple_sequences
-
-def run_dna_rna_tools(operation: str, seqs: List[str]):
-    if len(seqs) >= 2:
-        return process_multiple_sequences(seqs, operation)
-    else:
-        if operation == "transcribe":
-            return transcribe(seqs)
-        if operation == "reverse":
-            return reverse(seqs)
-        if operation == "complement":
-            return complement(seqs)
-        if operation == "reverse_complement":
-            return reverse_complement(seqs)
-        
-FUNC_STR_INPUT = {
-    'gravy': calc_gravy,
-    'iso': calc_iso_point,
-    'rename': transform_to_three_letters,
-    'lengths': sequence_length,
-    'molw': calc_protein_mass}
-
-FUNC_LIST_INPUT = {
-    'heavy': find_heaviest_proteins,
-    'light': find_lightest_proteins}        
-
-        
-def process_seqs(option: str, seqs: List[str]):
-    """
-    Perform some simple operations on amino acids sequences.
-    """
-    check_sequences(seqs)
-    if option in FUNC_STR_INPUT.keys():
-        results = []
-        for seq in seqs:
-            result_tmp = FUNC_STR_INPUT[option](seq.upper())
-            results.append(result_tmp)
-        return results
-    elif option in FUNC_LIST_INPUT.keys():
-        return FUNC_LIST_INPUT[option](seqs)
-    else:
-        raise ValueError("Enter valid operation")
-    
-def read_fastq(fastq_file: str) -> Dict:
-    with open(fastq_file, 'r') as fastq:
-        fastq_dict = {}
-        while True:
-            name = fastq.readline()
-            seq = fastq.readline().rstrip()
-            comment = fastq.readline()
-            qual = fastq.readline().rstrip()
-            if len(seq) == 0:
-                break
-            fastq_dict[name] = (seq,comment, qual)
-    fastq.closed
-    return fastq_dict
-
-def save_file_at_dir(file_content: Dict, prev_name: str, output_filename: Union[str, None], mode='w') -> TextIO:
-    """Function makes a folder and saves generated files to the folder"""
-    if output_filename == None:
-         output_filename = prev_name
-         
-    filename = './fastq_filtrator_resuls/' + output_filename + '.fastq'
-    os.makedirs( os.path.dirname(filename) , exist_ok=True)
-    with open(filename, mode) as outfile:
-        for name, values in file_content.items():                       
-                        seq, comment, quality = values
-                        outfile.write(name)
-                        outfile.write(seq)
-                        outfile.write('\n')
-                        outfile.write(comment)
-                        outfile.write(quality)
-                        outfile.write('\n')
-    outfile.close()
-
-def filter_fastq(input_path: str, gc_bounds: Tuple[Union[int, float]], length_bounds: Tuple[int], quality_threshold: int, output_filename: Union[str, None]) -> Dict:
-
-    """
-    The main function takes 5 arguments. It checks DNA for compliance with conditions and return new Dict with filtered DNA. 
-    """       
-                    
-    fastq_dict = read_fastq(input_path)
-    filtered_reads = {}
-    for seq_name, values in fastq_dict.items():
-        seq, _, seq_quality = values 
-        if (is_pass_by_length(seq, length_bounds) and is_pass_by_gc(seq, gc_bounds) and is_pass_by_quality(seq_quality, quality_threshold)):                   
-                   filtered_reads[seq_name] = values              
-    return save_file_at_dir(filtered_reads, input_path, output_filename)
-
-            
-
-         
+from abc import ABC, abstractmethod
+from Bio import SeqIO, SeqUtils
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
 
 
-     
+def save_file_at_dir(
+    file_content: Dict[str, Tuple[str, str, str]],
+    output_filename: Optional[str],
+    input_path: str,
+    mode: str = "w",
+) -> TextIO:
+    if not output_filename:
+        output_filename = os.path.basename(input_path)
+
+    output_dir = os.path.join(os.path.dirname(input_path), "fastq_filtrator_results")
+    os.makedirs(output_dir, exist_ok=True)
+    full_path = os.path.join(output_dir, output_filename)
+
+    records = []
+    for header, (seq, comment, qual) in file_content.items():
+        record = SeqRecord(
+            seq=Seq(seq),
+            id=header.strip("@").split()[0],
+            description=comment.strip("+").strip(),
+            letter_annotations={"phred_quality": [ord(q) - 33 for q in qual]},
+        )
+        records.append(record)
+
+    with open(full_path, mode) as file:
+        SeqIO.write(records, file, "fastq")
+
+    return file
+
+
+def filter_fastq(
+    input_path: str,
+    gc_bounds: Union[Tuple[Union[int, float], Union[int, float]]] = (0, 100),
+    length_bounds: Union[Tuple[int, int], int] = (0, 2**32),
+    quality_threshold: int = 0,
+    output_filename: Optional[str] = None,
+) -> Dict[str, Tuple[str, str, str]]:
+
+    filtered_seqs = {}
+
+    total_reads = 0
+    passed_reads = 0
+
+    for record in SeqIO.parse(input_path, "fastq"):
+        total_reads += 1
+        gc = SeqUtils.gc_fraction(record.seq) * 100
+        if not (gc_bounds[0] <= gc <= gc_bounds[1]):
+            continue
+
+        len_seq = len(record.seq)
+        if not (length_bounds[0] <= len_seq <= length_bounds[1]):
+            continue
+
+        qualities = record.letter_annotations.get("phred_quality", [])
+        if not qualities:
+            continue
+        avg_quality = sum(qualities) / len(qualities)
+        if avg_quality < quality_threshold:
+            continue
+
+        passed_reads += 1
+        filtered_seqs[record.id] = (
+            str(record.seq),
+            "+",
+            "".join([chr(q + 33) for q in qualities]),
+        )
+
+    save_file_at_dir(
+        file_content=filtered_seqs,
+        output_filename=output_filename,
+        input_path=input_path,
+    )
+
+    return total_reads, passed_reads
+
+
+class BiologicalSequence(ABC):
+    def __init__(self, sequence: str):
+        self.sequence = sequence.upper()
+        if not self.is_valid():
+            raise ValueError("Invalid sequence characters")
+
+    def __len__(self) -> int:
+        return len(self.sequence)
+
+    def __getitem__(self, index: int | slice):
+        if isinstance(index, slice):
+            return self.__class__(self.sequence[index])
+        return self.sequence[index]
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.sequence})"
+
+    def __str__(self) -> str:
+        return self.sequence
+
+    @abstractmethod
+    def is_valid(self) -> bool:
+        pass
+
+
+class NucleicAcidSequence(BiologicalSequence):
+    _alphabet = set()
+    _nucl_complement_map = {}
+
+    def is_valid(self) -> bool:
+        return all(nuc in self._alphabet for nuc in self.sequence)
+
+    def complement(self) -> str:
+        return self.__class__(
+            "".join(self._nucl_complement_map[nuc] for nuc in self.sequence)
+        )
+
+    def reverse(self) -> str:
+        return self.__class__(self.sequence[::-1])
+
+    def reverse_complement(self) -> str:
+        return self.complement().reverse()
+
+
+class DNASequence(NucleicAcidSequence):
+    _alphabet = {"A", "T", "G", "C"}
+    _nucl_complement_map = {"A": "T", "T": "A", "G": "C", "C": "G"}
+
+    def transcribe(self):
+        return RNASequence(self.sequence.replace("T", "U"))
+
+
+class RNASequence(NucleicAcidSequence):
+    _alphabet = {"A", "U", "G", "C"}
+    _nucl_complement_map = {"A": "U", "U": "A", "C": "G", "G": "C"}
+
+
+class AminoAcidSequence(BiologicalSequence):
+    _alphabet = {
+        "A",
+        "R",
+        "N",
+        "D",
+        "V",
+        "H",
+        "G",
+        "Q",
+        "E",
+        "I",
+        "L",
+        "K",
+        "M",
+        "P",
+        "S",
+        "Y",
+        "T",
+        "W",
+        "F",
+        "C",
+    }
+    amino_acid_names = {
+        "A": "Ala",
+        "R": "Arg",
+        "N": "Asn",
+        "D": "Asp",
+        "V": "Val",
+        "H": "His",
+        "G": "Gly",
+        "Q": "Gln",
+        "E": "Glu",
+        "I": "Ile",
+        "L": "Leu",
+        "K": "Lys",
+        "M": "Met",
+        "P": "Pro",
+        "S": "Ser",
+        "Y": "Tyr",
+        "T": "Thr",
+        "W": "Trp",
+        "F": "Phe",
+        "C": "Cys",
+    }
+
+    def is_valid(self) -> bool:
+        return all(aa in self._alphabet for aa in self.sequence)
+
+    def transform_to_three_letters(self) -> str:
+
+        return "".join(self.amino_acid_names[aa] for aa in self.sequence)
+
+
+if __name__ == "__main__":
+    # Пример работы с ДНК
+    dna = DNASequence("ATGC")
+    print(f"Исходная ДНК: {dna}")
+    print(f"Обратная комплементарная ДНК: {dna.reverse_complement()}")
+    print(f"Транскрибированная РНК: {dna.transcribe()}")
+
+    # Пример фильтрации FASTQ
+    filtered_1 = filter_fastq(
+        input_path="example.fastq",
+        gc_bounds=(20, 80),
+        length_bounds=(50, 150),
+        quality_threshold=20,
+        output_filename="filtered.fastq",
+    )
+    print(f"После фильтрации c условиями: {filtered_1}")
+    filtered_2 = filter_fastq(input_path="example.fastq")
+    print(f"После фильтрации со значениями по умолчанию: {filtered_2}")
