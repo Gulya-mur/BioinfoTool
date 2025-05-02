@@ -1,120 +1,101 @@
-# BioinfoTool
+# BioinfoTool 🧬
 
-*Немного слов. Знаю, что имеются ошибки/недочеты в предыдущих функциях, которые делали в команде (свои правила). Я их вижу, просто еще не хватило времени засесть за них и разобраться. Я их исправлю, не ругайте :)*
+## Содержание 📜
 
-It contains 1 main function and 3 associated modules. Also it has additional function *bio_files_processor*
+* [Описание](#описание)
+* [Структура проекта](#структура-проекта)
+* [Установка](#установка)
+* [Фильтрация FastQ-файлов](#фильтрация-fastq-файлов)
+* [Классы для работы с биологическими последовательностями](#Классы-для-работы-с-биологическими-последовательностями)
+* [Использование](#использование)
 
-## main
+**BioinfoTool** — это утилита для анализа биологических последовательностей и фильтрации FASTQ‑файлов с использованием библиотеки [Biopython](https://biopython.org/). В данном проекте реализованы функции для работы с FASTQ‑файлами, а также классы для представления и обработки последовательностей ДНК, РНК и белков.
 
-* main.py
-* bio_files_processor
+> **Важно:** В текущей версии весь функционал находится в одном файле `main.py`. Ранее проект использовал пакет `modules`, который был удалён.
 
-## modules: 
+---
 
-* DNATool.py
-* DNA_fastq_filter.py
-* ProteinTool.py
+## Структура проекта
 
-# main
+BioinfoTool/
+├── main.py                - Основной модуль с логикой
+├── fastq_filtrator_results/ - Папка для результатов фильтрации
+├── example_fastq.fastq    - Пример FASTQ-файла
+├── requirements.txt       - Зависимости
+└── README.md              - Документация
 
-This file contains 3 main functions used for analyze biological data.
+## Установка 📦
 
-* run_dna_rna_tools - use for analysis DNA data. Details are described below 
-* process_seqs - use for analysis Protein data. Details are described below 
-* filter_fastq - use for analysis DNA data from fastq file. Details are described below 
-
-# bio_files_processor
-
-* convert_multiline_fasta_to_oneline - takes fasta file with DNA/RNA/protein sequences and converts it to one line deleting all unnecessary information
-
-# DNATool
-
-The DNATool contains 6 functions, which we can use to analyze out DNA data. 
-
-## Functions:
-
-transcribe — return the transcribed sequence
-reverse — return the reversed sequence
-complement — return the complementary sequence
-reverse_complement — return the reverse complementary sequence
-is_dna - used as an internal function to determine the type of sequence (DNA or RNA)
-
-## DNATool using examples
-
-Execute script (you should be on directory with script):
-```bash
-python3
->>> from main import run_dna_rna_tools
->>> print(run_dna_rna_tools(__command__, __sequence or list of sequences__))
-```
-
-run_dna_rna_tools('transcribe', 'ATG') # 'AUG'
-run_dna_rna_tools('reverse', 'ATG') # 'GTA'
-run_dna_rna_tools('complement', 'AtG') # 'TaC'
-run_dna_rna_tools('reverse_complement', 'ATg') # 'cAT'
-run_dna_rna_tools( 'reverse', 'ATG', 'aT') # ['GTA', 'Ta']
-
-# ProteinTool
-
-## HomeWork: correct mistakes
-
-### My functions:
-* calc_protein_mass
-* find_heaviest_proteins
-* max_mass
-* find_lightest_proteins
-* min_mass
-
-## Tool for PROtein SEQuences Operation
-
-This tool can perform some simple operations on amino acid sequences:
-* help you calculate protein lengths, molecular weights, isoelectric points and GRAVY values
-* find and show you heaviest and lightest proteins
-* rewrite 1-letter sequence to 3-letter sequence
-
-## How use process_seqs()
-Execute script (you should be on directory with script):
-```bash
-python3
->>> from ProtSeqO import process_seqs
->>> print(process_seqs(__command__, __sequence or list of sequences__))
-```
-
-You can input to `process_seqs()` sequence as string or list with any strings of sequences. __Pay attention__ that your sequence(s) should contain 1-letter symbols (case does not matters) of 20 common amino acids ('U' for selenocysteine and 'O' for pyrrolysine doesn't allowed).
-
-Command must be a string with one of followed options.
-
-## process_seqs options
-* 'lengths' - return list with numbers of AA in each sequence(s)
-* 'molw' - return list of protein molecular weight (use the average molecular weight of AA, 110 Da)
-* 'iso' - return list of approximate isoelectric point of given amino acids sequence
-* 'gravy' - return list of GRAVY (grand average of hydropathy) values
-* 'rename' - return list of sequences in 3-letter AA code (AA separated by hyphens)
-* 'heavy' - return the sequence(s) with maximum molecular weight and weigth value
-* 'light' - return the sequence(s) with minimum molecular weight and weigth value
-
-# DNA_fastq_filter
-
-DNA_fastq_filter contains 4 functions that are used to assess the quality of data and filter according to specified criteria.
-
-## Functions:
-
-cal_gc_content — return percent of GC content
-gc_bounds — define filter boundatry and return bool if it passed the filtering using cal_gc_content
-length_bounds — define filter boundatry and return bool if it passed the filtering by set range
-quality_threshold — Define quality of each nucleotide using ASCII table and Phred-33 scale and return bool
-
-## DNATool using examples
-
-Execute script (you should be on directory with script):
-```bash
-python3
->>> from main import filter_fastq
->>> print(read_fastq(__dic__, __gc_bounds__, __length_bounds, __quality__))
-```
+1. Клонируйте репозиторий:
 
 ```bash
-python3
->>> filter_fastq('example_fastq.fastq', (20, 80), (0, 2**32), 0, 'name.fastq') 
->>> filter_fastq('example_fastq.fastq', (75), (1000), 0, 'name.fastq') 
+git clone git@github.com:Gulya-mur/BioinfoTool.git
+cd BioinfoTool
 ```
+
+2. Установите необходимые зависимости (см. requirements.txt)
+```bash
+pip install -r requirements.txt
+```
+
+В файле `main.py` содержится следующий функционал:
+
+### 1. Функции для работы с FASTQ‑файлами
+
+- **save_file_at_dir**  
+  Сохраняет отфильтрованные данные в виде FASTQ‑файла. Функция принимает словарь, где ключом является заголовок, а значением — кортеж из строки последовательности, комментария и строки с качеством. Результирующий файл сохраняется в поддиректории `fastq_filtrator_results`, расположенной в той же папке, что и входной файл.
+
+- **filter_fastq**  
+  Фильтрует записи из входного FASTQ‑файла по следующим критериям:
+  - **GC-содержание:** определяется с использованием `SeqUtils.gc_fraction` (в процентах).
+  - **Длина последовательности:** проверяется, что длина находится в заданном диапазоне.
+  - **Качество:** среднее значение Phred‑33 должно быть не ниже порога.
+  
+  Функция сохраняет отфильтрованные записи с помощью `save_file_at_dir` и возвращает общее количество исходных прочитанных записей и количество записей, прошедших фильтрацию.
+
+### 2. Классы для работы с биологическими последовательностями
+
+- **BiologicalSequence (абстрактный класс)**  
+  Определяет базовый интерфейс для всех последовательностей:
+  - Поддержка функций `len()`, индексирования и срезов.
+  - Красивое представление через методы `__str__` и `__repr__`.
+  - Абстрактный метод `is_valid()`, который проверяет корректность символов последовательности.
+
+- **NucleicAcidSequence**  
+  Наследуется от `BiologicalSequence` и реализует методы:
+  - `complement()` — возвращает комплементарную последовательность.
+  - `reverse()` — возвращает перевёрнутую последовательность.
+  - `reverse_complement()` — сначала вычисляет комплементарную последовательность, а затем возвращает её перевёрнутый вариант.
+  
+  Здесь используются защищённые атрибуты `_alphabet` и `_nucl_complement_map`, определяемые в наследниках.
+
+- **DNASequence**  
+  Наследник `NucleicAcidSequence` для работы с ДНК:
+  - Определён алфавит: `{'A', 'T', 'G', 'C'}`.
+  - Реализована словаврь комплементарности.
+  - Метод `transcribe()` — транскрибирует ДНК в РНК, возвращая объект класса `RNASequence`.
+
+- **RNASequence**  
+  Аналогичен `DNASequence`, но для РНК:
+  - Алфавит: `{'A', 'U', 'G', 'C'}`.
+  - Словарь комплементарности настроена для РНК.
+
+- **AminoAcidSequence**  
+  Наследник `BiologicalSequence` для белковых последовательностей:
+  - Определён алфавит из 20 стандартных аминокислот.
+  - Метод `transform_to_three_letters()` преобразует последовательность из однобуквенных кодов в трёхбуквенные обозначения (без разделителей).
+
+---
+
+## Примеры использования
+
+### Работа с последовательностями
+
+Пример создания объекта ДНК, вычисления обратного комплемента и транскрипции:
+```python
+# Пример работы с ДНК
+dna = DNASequence("ATGC")
+print(f"Исходная ДНК: {dna}")                         # Вывод: ATGC
+print(f"Обратная комплементарная ДНК: {dna.reverse_complement()}")  
+
+print(f"Транскрибированная РНК: {dna.transcribe()}")    # Вывод: соответствующая РНК последовательность
