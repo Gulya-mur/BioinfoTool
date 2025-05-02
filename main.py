@@ -188,7 +188,6 @@ class AminoAcidSequence(BiologicalSequence):
         return all(aa in self._alphabet for aa in self.sequence)
 
     def transform_to_three_letters(self) -> str:
-
         return "".join(self.amino_acid_names[aa] for aa in self.sequence)
 
 
