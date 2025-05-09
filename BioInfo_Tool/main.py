@@ -77,7 +77,7 @@ def filter_fastq(
             write(filtered_seqs, input_path, output_filename, output_dir)
     except Exception as e:
         logger.error(f"Ошибка при обработке файла {input_path}: {e}")
-        raise
+        raise e
 
     # write(
     #     file_content=filtered_seqs,
